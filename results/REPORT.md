@@ -95,7 +95,7 @@ The 32 runs per material are made up of:
 | Version | Colab notebook (Google Drive) | Run time |
 |---|---|---|
 | v1 | https://colab.research.google.com/drive/1s1rngJQQXDMTjDQfb9LMWoo16Mpeg9Xr | about 20 min |
-| v2 | https://colab.research.google.com/drive/1RMXyGFzVcEioeYo4mYVRdTgvZBUXqwYR | __V2_TIME__ |
+| v2 | https://colab.research.google.com/drive/1RMXyGFzVcEioeYo4mYVRdTgvZBUXqwYR | running |
 
 ---
 
@@ -167,7 +167,9 @@ RSM fits its own data well but predicts unseen conditions less well. The ANN is 
 
 ---
 
-__V2_SECTION__
+## 8. Version 2: accuracy improvements (`results/v2_accuracy_improvements/`)
+
+*Run in progress in Google Colab. This section will be filled in with the full v2 results when the run completes.*
 
 ---
 
