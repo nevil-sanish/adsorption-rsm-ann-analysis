@@ -11,5 +11,6 @@ Response surface methodology (RSM) and artificial neural network (ANN) modelling
 | `results/REPORT.md`, `results/REPORT.docx` | Full end-to-end explanation of every run |
 | `results/v1/` | Run 1: RSM + ANN, the three goals |
 | `results/v2/` | Run 2: accuracy-improvement methods using the same data |
+| `rsm_ann_v3.ipynb`, `results/v3/` | Run 3: best-model selection by repeated stratified 5-fold CV |
 
 To reproduce, upload the notebook to https://colab.research.google.com and choose **Runtime → Run all**. No measured value is ever altered or synthesised.

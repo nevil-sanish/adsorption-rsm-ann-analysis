@@ -16,11 +16,13 @@ suchithra/
 │   ├── doubts.docx                 Notes from the first analysis
 │   ├── s13369-022-07391-3.pdf      Nguyen et al. 2023 (RSM / CCRD reference)
 │   └── Comparative assessment ... .pdf   Kumari et al. 2026 (ANN vs RSM reference)
-├── rsm_ann_analysis.ipynb        Latest notebook (run in Google Colab)
+├── rsm_ann_analysis.ipynb        v1 + v2 notebook (run in Google Colab)
+├── rsm_ann_v3.ipynb              v3 notebook
 └── results/
     ├── REPORT.md / REPORT.docx   This document
     ├── v1/      Version 1: RSM + ANN, the three goals
-    └── v2/ Version 2: v1 + accuracy-improvement methods
+    ├── v2/      Version 2: v1 + accuracy-improvement methods
+    └── v3/      Version 3: model selection by repeated stratified 5-fold CV
 ```
 
 ---
@@ -95,7 +97,8 @@ The 32 runs per material are made up of:
 | Version | Colab notebook (Google Drive) | Run time |
 |---|---|---|
 | v1 | https://colab.research.google.com/drive/1s1rngJQQXDMTjDQfb9LMWoo16Mpeg9Xr | about 20 min |
-| v2 | https://colab.research.google.com/drive/1RMXyGFzVcEioeYo4mYVRdTgvZBUXqwYR | running |
+| v2 | https://colab.research.google.com/drive/1rWQat80Ue99-leizVeROoQOYSrzqOzYH?authuser=4 (Mercury account, T4) | about 30 min |
+| v3 | https://colab.research.google.com/drive/1CM81nmv71kRFWK9tKOnDr6FDrYOdZraL?authuser=4 (Mercury account, T4) | running |
 
 ---
 
@@ -169,7 +172,28 @@ RSM fits its own data well but predicts unseen conditions less well. The ANN is 
 
 ## 8. Version 2: accuracy improvements (`results/v2/`)
 
-*Run in progress in Google Colab. This section will be filled in with the full v2 results when the run completes.*
+**Full details:** `results/v2/V2_REPORT.md` / `.docx`. Ran on a Colab T4 runtime (Mercury account); the models compute on the CPU.
+
+v2 re-runs all of v1 unchanged and adds 8 methods that use only the existing data:
+- a conc ÷ dose input
+- a removal-space target
+- weighted RSM
+- a Gaussian Process
+- monotonic boosting
+- an RSM + ANN hybrid
+- an ANN with conc/dose
+- an ANN + GPR ensemble
+
+| Model | Test R² | LOCO R² | LOCO RMSE (mg/g) |
+|---|---|---|---|
+| **Ensemble (ANN + GPR)** (best on LOCO) | 0.907 | **0.887** | **6.78** |
+| **ANN + conc/dose** (best on test) | **0.927** | 0.882 | 6.94 |
+| ANN (v1) | 0.918 | 0.876 | 7.11 |
+| RSM reduced (v1) | 0.727 | 0.540 | 13.71 |
+
+- **Accuracy improved modestly,** most of all for BC:MgCO₃ 1:1.
+- **The removal-space target failed** on unseen extreme conditions and should not be used.
+- **At the BC:MgCO₃ 1:1 optimum,** the more accurate models predict about 90 mg/g, against 114 from RSM.
 
 ---
 
