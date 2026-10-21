@@ -17,7 +17,6 @@ suchithra/
 │   ├── s13369-022-07391-3.pdf      Nguyen et al. 2023 (RSM / CCRD reference)
 │   └── Comparative assessment ... .pdf   Kumari et al. 2026 (ANN vs RSM reference)
 ├── rsm_ann_v3.ipynb              v3 notebook (run in Google Colab)
-
 └── results/
     ├── REPORT.md / REPORT.docx   This document
     ├── v1/      Version 1: RSM + ANN, the three goals
@@ -98,7 +97,7 @@ The 32 runs per material are made up of:
 |---|---|---|
 | v1 | https://colab.research.google.com/drive/1s1rngJQQXDMTjDQfb9LMWoo16Mpeg9Xr | about 20 min |
 | v2 | https://colab.research.google.com/drive/1rWQat80Ue99-leizVeROoQOYSrzqOzYH?authuser=4 (Mercury account, T4) | about 30 min |
-| v3 | https://colab.research.google.com/drive/1CM81nmv71kRFWK9tKOnDr6FDrYOdZraL?authuser=4 (Mercury account, T4) | running |
+| v3 | https://colab.research.google.com/drive/1CM81nmv71kRFWK9tKOnDr6FDrYOdZraL?authuser=4 (Mercury account, T4) | about 35 min |
 
 ---
 
@@ -194,6 +193,24 @@ v2 re-runs all of v1 unchanged and adds 8 methods that use only the existing dat
 - **Accuracy improved modestly,** most of all for BC:MgCO₃ 1:1.
 - **The removal-space target failed** on unseen extreme conditions and should not be used.
 - **At the BC:MgCO₃ 1:1 optimum,** the more accurate models predict about 90 mg/g, against 114 from RSM.
+
+---
+
+## 8b. Version 3: final model selection (`results/v3/`)
+
+**Full details:** `results/v3/V3_REPORT.md` / `.docx`.
+
+v3 chooses the best model with **repeated stratified grouped 5-fold CV** (5 folds × 3 repeats), confirms it on the hold-out test and leave-one-out, checks ANN convergence, and adds a 2-layer ANN and an Adam + early-stopping ANN.
+
+| Model | 5-fold R² | Hold-out R² | LOCO R² | LOCO RMSE (mg/g) |
+|---|---|---|---|---|
+| **ANN Adam early-stop + conc/dose** (selected) | **0.903** | **0.937** | **0.903** | **6.29** |
+| ANN (v1) | 0.859 | 0.918 | 0.876 | 7.11 |
+| RSM reduced (v1) | 0.130 | 0.727 | 0.540 | 13.71 |
+
+- **Convergence:** all ANNs converged in 223–1242 of the 5000 allowed iterations, so more epochs would not help.
+- **Best material:** BC:MgCO₃ 1:1 leave-one-out R² improved from 0.80 to 0.91.
+- **Caveat:** the selected model under-predicts the highest-qe, low-dose runs. At the BC:MgCO₃ 1:1 optimum, expect about 70–95 mg/g; the lab validation run decides.
 
 ---
 
