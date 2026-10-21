@@ -2,7 +2,7 @@
 
 **Project:** adsorption capacity (qe, mg/g) of 5 biochar materials
 **Data:** 5 materials × 32 runs × 3 replicates = 480 laboratory measurements (`docs/RSM Data_Table.docx`)
-**Where it ran:** Google Colab (CPU runtime), notebook `rsm_ann_analysis.ipynb`
+**Where it ran:** Google Colab (CPU runtime), notebooks `results/v1/rsm_ann_analysis.ipynb` (v1 + v2) and `rsm_ann_v3.ipynb` (v3)
 
 ---
 
@@ -16,8 +16,8 @@ suchithra/
 │   ├── doubts.docx                 Notes from the first analysis
 │   ├── s13369-022-07391-3.pdf      Nguyen et al. 2023 (RSM / CCRD reference)
 │   └── Comparative assessment ... .pdf   Kumari et al. 2026 (ANN vs RSM reference)
-├── rsm_ann_analysis.ipynb        v1 + v2 notebook (run in Google Colab)
-├── rsm_ann_v3.ipynb              v3 notebook
+├── rsm_ann_v3.ipynb              v3 notebook (run in Google Colab)
+
 └── results/
     ├── REPORT.md / REPORT.docx   This document
     ├── v1/      Version 1: RSM + ANN, the three goals
@@ -90,7 +90,7 @@ The 32 runs per material are made up of:
 
 ## 6. What was run in Google Colab
 
-1. The notebook `rsm_ann_analysis.ipynb` was uploaded to Colab. It is saved in Google Drive, and the 480 lab rows are embedded in a hidden cell.
+1. The notebook (`results/v1/rsm_ann_analysis.ipynb`) was uploaded to Colab. It is saved in Google Drive, and the 480 lab rows are embedded in a hidden cell.
 2. **Runtime → Run all** on a standard CPU runtime. All libraries come pre-installed in Colab: pandas, numpy, statsmodels, scipy, scikit-learn, matplotlib and openpyxl.
 3. The last cell zips the `results/` folder and downloads it (`RSM_ANN_results.zip`). Its contents were copied into the version folders here.
 
@@ -199,7 +199,7 @@ v2 re-runs all of v1 unchanged and adds 8 methods that use only the existing dat
 
 ## 9. How to reproduce
 
-1. Open https://colab.research.google.com → **Upload notebook** → choose `rsm_ann_analysis.ipynb`.
+1. Open https://colab.research.google.com → **Upload notebook** → choose `results/v1/rsm_ann_analysis.ipynb` (v1 + v2) or `rsm_ann_v3.ipynb` (v3).
 2. **Runtime → Run all.** Results download as `RSM_ANN_results.zip`.
 3. The random seed is fixed at 42, so the split and the results are reproducible.
 
