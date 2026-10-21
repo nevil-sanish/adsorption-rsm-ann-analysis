@@ -19,8 +19,8 @@ suchithra/
 ├── rsm_ann_analysis.ipynb        Latest notebook (run in Google Colab)
 └── results/
     ├── REPORT.md / REPORT.docx   This document
-    ├── v1_baseline_rsm_ann/      Version 1: RSM + ANN, the three goals
-    └── v2_accuracy_improvements/ Version 2: v1 + accuracy-improvement methods
+    ├── v1/      Version 1: RSM + ANN, the three goals
+    └── v2/ Version 2: v1 + accuracy-improvement methods
 ```
 
 ---
@@ -99,7 +99,7 @@ The 32 runs per material are made up of:
 
 ---
 
-## 7. Version 1: baseline RSM and ANN (`results/v1_baseline_rsm_ann/`)
+## 7. Version 1: baseline RSM and ANN (`results/v1/`)
 
 ### 7.1 What was done, step by step
 
@@ -157,7 +157,7 @@ The 32 runs per material are made up of:
 
 RSM fits its own data well but predicts unseen conditions less well. The ANN is clearly more accurate on unseen data. The run-by-run table is in the Excel sheet "Actual vs predicted".
 
-### 7.3 Files in `v1_baseline_rsm_ann/`
+### 7.3 Files in `v1/`
 
 | File | Contents |
 |---|---|
@@ -167,7 +167,7 @@ RSM fits its own data well but predicts unseen conditions less well. The ANN is 
 
 ---
 
-## 8. Version 2: accuracy improvements (`results/v2_accuracy_improvements/`)
+## 8. Version 2: accuracy improvements (`results/v2/`)
 
 *Run in progress in Google Colab. This section will be filled in with the full v2 results when the run completes.*
 

@@ -9,7 +9,7 @@ Response surface methodology (RSM) and artificial neural network (ANN) modelling
 | `docs/` | Input documents: data sheet, voice-note constraints, notes, reference papers |
 | `rsm_ann_analysis.ipynb` | Analysis notebook (run in Google Colab) |
 | `results/REPORT.md`, `results/REPORT.docx` | Full end-to-end explanation of every run |
-| `results/v1_baseline_rsm_ann/` | Run 1: RSM + ANN, the three goals |
-| `results/v2_accuracy_improvements/` | Run 2: accuracy-improvement methods using the same data |
+| `results/v1/` | Run 1: RSM + ANN, the three goals |
+| `results/v2/` | Run 2: accuracy-improvement methods using the same data |
 
 To reproduce, upload the notebook to https://colab.research.google.com and choose **Runtime → Run all**. No measured value is ever altered or synthesised.
