@@ -8,9 +8,9 @@ Updated after each step. Newest status first.
 |---|---|
 | Web app (predict page, results browser) | Done, tested locally and live |
 | Live deployment | **https://adsorption-predictor.onrender.com** (Render, free plan, Singapore) |
-| Deploys from branch | `claude/magical-bohr-gjzrlq` (auto-deploys on every push) |
+| Deploys from branch | `main`. **Action needed:** in the Render dashboard open the service → Settings → Branch and set it to `main` (the old feature branch was deleted, so until then Render keeps serving the last build but cannot redeploy) |
 | Repository public | **Not done yet.** GitHub blocked the change from the automated session. Do it by hand: repo → Settings → General → Danger Zone → Change visibility → Public |
-| Merge to `main` | Not done. Render still builds from the feature branch; after merging, change the branch in the Render dashboard (Settings → Branch) |
+| Work on `main` | Done. All commits are on `main` under the repo owner's name; the feature branch is deleted |
 
 ## What was built
 
