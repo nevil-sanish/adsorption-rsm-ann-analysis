@@ -6,6 +6,7 @@ from flask import Flask, abort, jsonify, render_template, request, send_from_dir
 from markupsafe import Markup
 
 import predictor as P
+import analysis
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 RESULTS = os.path.join(ROOT, 'results')
@@ -28,6 +29,7 @@ KIND = {'.md': 'Report', '.docx': 'Word report', '.xlsx': 'Excel results', '.ipy
 MAT_LABEL = {'Biochar': 'Biochar (control)', 'BC:MgCO3 1:1': 'BC:MgCO₃ 1:1', 'BC:MgCO3 2:1': 'BC:MgCO₃ 2:1'}
 
 def label(m): return MAT_LABEL.get(m, m)
+app.jinja_env.filters['label'] = label
 
 def safe(rel):
     full = os.path.realpath(os.path.join(RESULTS, rel))
@@ -51,7 +53,7 @@ def files_in(folder):
     return sorted(out, key=lambda x: (order.get(x['kind'], 9), x['name']))
 
 @app.context_processor
-def inject(): return {'label': label}
+def inject(): return {'label': label, 'A': analysis.load()}
 
 # ---------------- predict ----------------
 @app.get('/')

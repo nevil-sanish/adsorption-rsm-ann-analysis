@@ -14,3 +14,12 @@ Response surface methodology (RSM) and artificial neural network (ANN) modelling
 | `rsm_ann_v3.ipynb`, `results/v3/` | Run 3: best-model selection by repeated stratified 5-fold CV |
 
 To reproduce, upload the notebook to https://colab.research.google.com and choose **Runtime → Run all**. No measured value is ever altered or synthesised.
+
+## Predict from your own machine (same result as the website)
+
+```
+git clone <repo> && cd <repo>
+pip install -r requirements.txt        # pinned versions; the saved models need them
+python predict_cli.py --material "BC:MgCO3 1:1" --model v3 --conc 65 --time 190 --pH 8 --dose 10
+```
+`--material all` prints all five. `--model` is one of `v3`, `v2`, `v1-ann`, `v1-rsm`. It uses the same code (`app/predictor.py`) and model file (`app/models/bundle.joblib`) as the live site.

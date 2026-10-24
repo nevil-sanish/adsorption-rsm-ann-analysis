@@ -1,0 +1,30 @@
+{% set top = A.materials[0] %}
+<h2>Which material is best?</h2>
+<div class="hero">
+  <span class="stat">{{ label(top.mat) }}</span> is the best material.
+  <b>Highest</b> mean qe ({{ '%.1f'|format(top['mean']) }} mg/g), highest best-measured qe ({{ '%.1f'|format(top.best) }} mg/g) and highest optimum, significantly better than every other material (two-way ANOVA + Tukey, p &lt; 0.001).
+</div>
+<div class="card">
+  <h3 style="margin-top:0">Best values per material (mg/g)</h3>
+  <div class="chart"><canvas id="cMat"></canvas></div>
+  <small>Measured = from the lab data. Optimum = predicted at each material's own best conditions (pH limited to 4–8), by the RSM equation and by the ANN. The RSM optimum can overshoot what was ever measured; the ANN value is the more cautious estimate.</small>
+</div>
+<div class="card">
+  <h3 style="margin-top:0">Optimum conditions of each material</h3>
+  <div class="tablewrap"><table>
+    <tr><th>Rank</th><th>Material</th><th class="n">Concentration (ppm)</th><th class="n">Time (min)</th><th class="n">pH</th><th class="n">Optimum dose (mg)</th><th class="n">RSM qe</th><th class="n">95% interval</th><th class="n">ANN qe</th><th class="n">Best measured</th><th class="n">Mean (all runs)</th></tr>
+    {% for m in A.materials %}<tr {% if loop.first %}class="hl"{% endif %}><td>{{ m.rank }}</td><td>{{ label(m.mat) }}</td><td class="n">{{ '%.1f'|format(m.conc) }}</td><td class="n">{{ '%.0f'|format(m.time) }}</td><td class="n">{{ '%.1f'|format(m.pH) }}</td><td class="n"><b>{{ '%.1f'|format(m.dose) }}</b></td>
+      <td class="n">{{ '%.1f'|format(m.rsm) }}</td><td class="n">{{ '%.0f'|format(m.pi[0]) }} to {{ '%.0f'|format(m.pi[1]) }}</td><td class="n">{{ '%.1f'|format(m.ann) }}</td><td class="n">{{ '%.1f'|format(m.best) }}</td><td class="n">{{ '%.1f'|format(m['mean']) }}</td></tr>{% endfor %}
+  </table></div>
+  <small>Plain biochar is the untreated control: it adsorbs almost nothing, so its "optimum" is not meaningful.</small>
+</div>
+<script>
+window.addEventListener('load', () => {
+  const M = {{ A.materials|map(attribute='mat')|map('label')|list|tojson }};
+  const col = ['#a8dfb9', '#6cc48a', '#2f9e55', '#1d5c34'];
+  const get = k => {{ A.materials|tojson }}.map(r => r[k]);
+  new Chart(document.getElementById('cMat'), {type: 'bar',
+    data: {labels: M, datasets: [['Mean of all runs', 'mean'], ['Best measured', 'best'], ['Optimum (ANN)', 'ann'], ['Optimum (RSM)', 'rsm']].map(([l, k], i) => ({label: l, data: get(k), backgroundColor: col[i], borderRadius: 4}))},
+    options: {responsive: true, maintainAspectRatio: false, scales: {y: {title: {display: true, text: 'qe (mg/g)'}}}}});
+});
+</script>

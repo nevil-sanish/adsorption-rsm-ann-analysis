@@ -14,7 +14,12 @@
   </ul>
 </div>
 
-<h2>Jump to a version</h2>
+{% include '_materials.html' %}
+{% include '_stats.html' %}
+{% include '_story.html' %}
+
+<h2>Result files: view or download</h2>
+<p class="lead">Every version's reports, Excel sheets, notebooks and plots. Open one to read it in the browser, or download it.</p>
 <div class="grid g3">
 {% for v in versions %}
   <div class="card" style="margin:0"><h3 style="margin-top:0"><a href="{{ url_for('version_page', v=v.id) }}">{{ v.title }}</a></h3>

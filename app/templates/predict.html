@@ -2,14 +2,16 @@
 {% block title %}Predict qe{% endblock %}
 {% block body %}
 <h1>Predict adsorption capacity (qe)</h1>
-<p class="lead">Enter the four conditions. The trained model predicts the expected phosphate adsorption capacity (mg per g) for all 5 materials. Pick which model version to use.</p>
+<p class="lead">Enter the four conditions. The trained model predicts the expected phosphate adsorption capacity (mg per g) for one material or all 5. Pick the material and the model version.</p>
 <form id="f" class="card">
   <div class="grid g3">
     <div><label for="conc">Concentration (ppm)</label><input id="conc" type="number" step="any" value="65" required><div class="hint">{{ ranges.conc[0] }} to {{ ranges.conc[1] }}</div></div>
     <div><label for="time">Time (min)</label><input id="time" type="number" step="any" value="190" required><div class="hint">{{ ranges.time[0] }} to {{ ranges.time[1] }}</div></div>
     <div><label for="pH">pH</label><input id="pH" type="number" step="any" value="8" required><div class="hint">{{ ranges.pH[0] }} to {{ ranges.pH[1] }} (practical use: 4 to 8)</div></div>
     <div><label for="dose">Dose (mg)</label><input id="dose" type="number" step="any" value="10" required><div class="hint">{{ ranges.dose[0] }} to {{ ranges.dose[1] }}</div></div>
-    <div style="grid-column:span 2;min-width:260px"><label for="version">Model version</label>
+    <div><label for="material">Material</label>
+      <select id="material"><option value="all">All 5 (compare)</option>{% for m in mats %}<option value="{{ m }}">{{ label(m) }}</option>{% endfor %}</select></div>
+    <div style="min-width:260px"><label for="version">Model version</label>
       <select id="version">{% for id,(lab,desc) in versions.items() %}<option value="{{ id }}" data-d="{{ desc }}">{{ lab }}{{ ' (recommended)' if id == 'v3' }}</option>{% endfor %}</select>
       <div class="hint" id="vdesc"></div></div>
   </div>
@@ -46,16 +48,17 @@
 <script>
 const $ = id => document.getElementById(id);
 const ids = ['conc','time','pH','dose'];
-const sel = $('version');
+const sel = $('version'), mat = $('material');
 const saved = (() => { try { return JSON.parse(localStorage.getItem('adsorbForm') || '{}'); } catch (e) { return {}; } })();
 ids.forEach(i => { if (saved[i] !== undefined) $(i).value = saved[i]; });
+if (saved.material && [...mat.options].some(o => o.value === saved.material)) mat.value = saved.material;
 if (saved.version && [...sel.options].some(o => o.value === saved.version)) sel.value = saved.version;
 const desc = () => $('vdesc').textContent = sel.selectedOptions[0].dataset.d;
 const f1 = x => (Math.round(x * 10) / 10).toFixed(1);
 
 async function run() {
   $('err').textContent = ''; ids.forEach(i => $(i).classList.remove('bad'));
-  const body = {version: sel.value}; ids.forEach(i => body[i] = $(i).value);
+  const body = {version: sel.value, material: mat.value}; ids.forEach(i => body[i] = $(i).value);
   try { localStorage.setItem('adsorbForm', JSON.stringify(body)); } catch (e) {}
   $('go').disabled = true;
   try {
@@ -68,19 +71,22 @@ async function run() {
 }
 function show(j) {
   $('out').hidden = false; $('vlabel').textContent = j.label;
-  const max = Math.max(...j.predictions.map(p => p.qe), 1);
-  $('bars').innerHTML = j.predictions.map(p => `<div class="res ${p.mat === j.best ? 'top' : ''}"><span class="nm">${p.name}${p.mat === j.best ? ' ★' : ''}</span>
+  const one = mat.value !== 'all', preds = one ? j.predictions.filter(p => p.mat === mat.value) : j.predictions;
+  const max = Math.max(...preds.map(p => p.qe), 1);
+  $('bars').innerHTML = preds.map(p => `<div class="res ${!one && p.mat === j.best ? 'top' : ''}"><span class="nm">${p.name}${!one && p.mat === j.best ? ' ★' : ''}</span>
     <div class="track"><div class="fill" style="width:${Math.max(0, p.qe) / max * 100}%"></div></div><b>${f1(p.qe)}</b></div>`).join('');
-  const mats = j.predictions;
+  const mats = preds;
   $('cmp').innerHTML = '<tr><th>Version</th>' + mats.map(m => `<th class="n">${m.name}</th>`).join('') + '</tr>' +
     j.compare.map(c => `<tr class="${c.id === j.version ? 'hl' : ''}"><td>${c.label}</td>` + mats.map(m => `<td class="n">${f1(c.values[m.mat])}</td>`).join('') + '</tr>').join('');
-  const bm = j.best, vals = j.compare.map(c => c.values[bm]), lo = Math.min(...vals), hi = Math.max(...vals);
+  const bm = one ? mat.value : j.best, vals = j.compare.map(c => c.values[bm]), lo = Math.min(...vals), hi = Math.max(...vals);
   const w = $('spread'); w.hidden = hi - lo < 15;
   if (!w.hidden) w.textContent = `Versions disagree by ${f1(hi - lo)} mg/g for the top material (${mats.find(m => m.mat === bm).name}: ${f1(lo)} to ${f1(hi)}). Expect the true value somewhere in that range.`;
 }
 $('f').addEventListener('submit', e => { e.preventDefault(); run(); });
 $('optimum').addEventListener('click', () => { $('conc').value = 65; $('time').value = 190; $('pH').value = 8; $('dose').value = 10; run(); });
 sel.addEventListener('change', () => { desc(); run(); });
+mat.addEventListener('change', run);
 desc(); run();
 </script>
+{% include '_materials.html' %}
 {% endblock %}

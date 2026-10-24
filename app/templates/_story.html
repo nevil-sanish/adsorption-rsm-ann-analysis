@@ -1,0 +1,27 @@
+<h2>The four models, and why we moved from one to the next</h2>
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))">
+  <div class="card" style="margin:0"><span class="pill">Step 1 · v1 RSM</span>
+    <h3>Response Surface Methodology</h3>
+    <p><b>What it is:</b> one fixed quadratic equation per material (linear, interaction and squared terms of concentration, time, pH, dose). Terms that are not significant are dropped.</p>
+    <p><b>Good at:</b> explaining <i>which factors matter</i> (the ANOVA above) and giving a clean optimum. It fits the lab data well (R² 0.74 to 0.96).</p>
+    <p><b>Problem:</b> on conditions it was not trained on it is poor (5-fold CV R² 0.13) and can predict impossible values such as negative qe. A single smooth curve cannot follow the real shape of the data.</p>
+    <p class="legendnote"><b>So we tried:</b> a neural network, which can learn curved, interacting behaviour without a fixed equation.</p></div>
+  <div class="card" style="margin:0"><span class="pill">Step 2 · v1 ANN</span>
+    <h3>Artificial Neural Network</h3>
+    <p><b>What it is:</b> a small network of connected nodes, 5 copies with different random starts, averaged.</p>
+    <p><b>Better because:</b> it predicts unseen conditions far better (CV R² 0.859, hold-out 0.918 vs RSM 0.727).</p>
+    <p><b>Problem:</b> accuracy was good, not yet great, and a single network is sensitive to its random start and to how it is trained.</p>
+    <p class="legendnote"><b>So we tried:</b> in v2, a Gaussian Process and ensembles, plus giving the model concentration and dose together as one ratio.</p></div>
+  <div class="card" style="margin:0"><span class="pill">Step 3 · v2 ensemble</span>
+    <h3>ANN + Gaussian Process</h3>
+    <p><b>What it is:</b> average of the ANN and a Gaussian Process (a model that predicts a value and how sure it is). Both also see the concentration-to-dose ratio.</p>
+    <p><b>Better because:</b> CV R² rose to 0.874, and it handles the extreme low-dose, high-qe corner best.</p>
+    <p><b>Problem:</b> only a small gain, and 12 models had been compared with a single train/test split, which can flatter a lucky model.</p>
+    <p class="legendnote"><b>So we tried:</b> in v3, a fairer test (repeated 5-fold CV over whole conditions) and better ANN training.</p></div>
+  <div class="card" style="margin:0"><span class="pill">Step 4 · v3 final</span>
+    <h3>ANN with Adam + early stopping</h3>
+    <p><b>What it is:</b> an ANN trained with the Adam optimiser that stops as soon as it stops improving on held-back data, so it does not memorise noise.</p>
+    <p><b>Best because:</b> highest score under the fair test: CV R² 0.903, hold-out 0.937, leave-one-out 0.903, average error about 4 mg/g.</p>
+    <p><b>Known weakness:</b> it smooths towards the middle, so it under-predicts the very highest-qe, low-dose results. There, compare with v2.</p>
+    <p class="legendnote"><b>Why it is the default:</b> best on average and confirmed on data it never saw. Every claim still needs lab confirmation.</p></div>
+</div>

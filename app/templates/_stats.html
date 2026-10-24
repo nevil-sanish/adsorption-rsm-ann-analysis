@@ -1,0 +1,40 @@
+<h2>Which factors are significant? (RSM ANOVA, p &lt; 0.05)</h2>
+<div class="card">
+  <p class="lead" style="margin-top:0">Green = significant (the factor really affects qe). Grey = not significant. Numbers are p-values. A = concentration, B = time, C = pH, D = dose.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Term</th>{% for m in A.mats %}<th class="n">{{ label(m) }}</th>{% endfor %}</tr>
+    {% for g in A.terms %}<tr><th colspan="{{ A.mats|length + 1 }}">{{ g.type }}</th></tr>
+      {% for r in g.rows %}<tr><td>{{ r.term }}</td>{% for m in A.mats %}{% set p = r.p[m] %}<td class="n {{ 'sig' if p < 0.05 else 'ns' }}">{{ '<0.001' if p < 0.001 else '%.3f'|format(p) }}{{ ' ✓' if p < 0.05 else '' }}</td>{% endfor %}</tr>{% endfor %}
+    {% endfor %}
+    <tr class="hl"><td>Significant terms</td>{% for f in A.fits %}<td class="n">{{ f.sig }} of {{ f.n }}</td>{% endfor %}</tr>
+  </table></div>
+</div>
+
+<h2>How well does the RSM equation fit each material?</h2>
+<div class="card">
+  <div class="tablewrap"><table>
+    <tr><th>Material</th><th class="n">R²</th><th class="n">Adjusted R²</th><th class="n">Predicted R²</th><th class="n">R² (reduced model)</th></tr>
+    {% for f in A.fits %}<tr><td>{{ label(f.mat) }}</td><td class="n"><b>{{ '%.3f'|format(f.r2) }}</b></td><td class="n">{{ '%.3f'|format(f.adj) }}</td><td class="n">{{ '%.3f'|format(f.pred) }}</td><td class="n">{{ '%.3f'|format(f.r2_red) }}</td></tr>{% endfor %}
+  </table></div>
+  <small>R² close to 1 means the equation fits the lab data well. The full model uses all 14 terms; the reduced model keeps only the significant ones.</small>
+</div>
+
+<h2>Model comparison</h2>
+<div class="grid g2">
+  <div class="card" style="margin:0"><h3 style="margin-top:0">All models, 5-fold CV R² (higher is better)</h3><div class="chart tall"><canvas id="cCv"></canvas></div>
+    <small>Each model is scored on conditions it never saw. Negative = worse than guessing the average.</small></div>
+  <div class="card" style="margin:0"><h3 style="margin-top:0">RSM vs ANN on unseen conditions, per material (leave-one-out R²)</h3><div class="chart tall"><canvas id="cPm"></canvas></div>
+    <small>Hides each experimental condition in turn and predicts it. "ALL" = all materials together.</small></div>
+</div>
+<script>
+window.addEventListener('load', () => {
+  const cv = {{ A.models_cv|tojson }}, pm = {{ A.per_mat|tojson }}, lab = {{ A.mats|map('label')|list|tojson }}.concat(['All materials']);
+  new Chart(document.getElementById('cCv'), {type: 'bar',
+    data: {labels: cv.map(r => r.model), datasets: [{label: '5-fold CV R²', data: cv.map(r => r.r2), backgroundColor: cv.map(r => r.model.startsWith('RSM') ? '#f0b46a' : '#2f9e55'), borderRadius: 4}]},
+    options: {indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}}, scales: {x: {min: -1, max: 1}}}});
+  const names = ['RSM', 'ANN (v1)', 'ANN (v3)'], cols = ['#f0b46a', '#6cc48a', '#1d5c34'];
+  new Chart(document.getElementById('cPm'), {type: 'bar',
+    data: {labels: lab, datasets: names.map((n, i) => ({label: n, data: pm.map(r => r.lo[n]), backgroundColor: cols[i], borderRadius: 4}))},
+    options: {responsive: true, maintainAspectRatio: false, scales: {y: {min: -1, max: 1, title: {display: true, text: 'R²'}}}}});
+});
+</script>
