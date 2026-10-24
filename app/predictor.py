@@ -11,7 +11,7 @@ RANGES = {'conc': (10, 100), 'time': (60, 360), 'pH': (4, 12), 'dose': (10, 150)
 
 # id -> (label, short description). "recommended" marks the final, most accurate model.
 VERSIONS = {
-    'v3': ('v3: ANN, Adam + early stopping', 'Final model. Most accurate on average (5-fold CV R² 0.903).'),
+    'v3': ('v3: ANN (Adam, early-stopped training)', 'Final model. Most accurate on average (5-fold CV R² 0.903).'),
     'v2': ('v2: ANN + Gaussian Process ensemble', 'Better than v3 at the extreme low-dose, high-qe corner.'),
     'v1-ann': ('v1: ANN', 'First neural network (5-fold CV R² 0.859).'),
     'v1-rsm': ('v1: RSM (quadratic)', 'Equation-based model. Explains factor effects, but over/under-shoots on new conditions.'),

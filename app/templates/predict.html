@@ -16,6 +16,7 @@
       <div class="hint" id="vdesc"></div></div>
   </div>
   <div class="row" style="margin-top:14px"><button id="go" type="submit">Predict</button>
+    <select id="lab" style="width:auto;min-width:240px" aria-label="Load a measured lab condition"><option value="">Load a measured lab condition…</option>{% for c in conditions %}<option value="{{ c|join(',') }}">{{ c[0]|int }} ppm · {{ c[1]|int }} min · pH {{ c[2]|int }} · {{ c[3]|int }} mg</option>{% endfor %}</select>
     <button type="button" id="optimum" class="btn" style="background:none">Use suggested optimum</button></div>
   <div id="err" class="err" role="alert"></div>
 </form>
@@ -24,6 +25,7 @@
   <div class="card">
     <div class="row" style="justify-content:space-between"><h2 style="margin:0">Predicted qe by material</h2><span class="pill" id="vlabel"></span></div>
     <div id="bars" style="margin-top:8px"></div>
+    <div id="live" class="legendnote"></div><div id="meas" class="hero" hidden></div>
     <small>Negative values mean the material did not adsorb (plain biochar is the control and holds almost nothing).</small>
   </div>
   <div class="card">
@@ -70,6 +72,9 @@ async function run() {
   finally { $('go').disabled = false; }
 }
 function show(j) {
+  $('live').textContent = `Computed live by the model on the server in ${j.ms} ms. Nothing here is looked up from saved results.`;
+  const ms = Object.entries(j.measured), mb = $('meas'); mb.hidden = !ms.length;
+  if (ms.length) mb.innerHTML = '<b>Measured in the lab at exactly these conditions</b> (mean of 3 replicates) vs predicted:<br>' + ms.filter(([m]) => mat.value === 'all' || m === mat.value).map(([m, v]) => { const pr = j.predictions.find(p => p.mat === m).qe; return `${j.predictions.find(p => p.mat === m).name}: measured <b>${f1(v.mean)}</b> ± ${f1(v.sd)}, ${j.label.split(':')[0]} predicts <b>${f1(pr)}</b> (difference ${f1(pr - v.mean)})`; }).join('<br>') + '<br><small>Note: the models were trained on all lab data, so this is a fit check, not a test on unseen conditions.</small>';
   $('out').hidden = false; $('vlabel').textContent = j.label;
   const one = mat.value !== 'all', preds = one ? j.predictions.filter(p => p.mat === mat.value) : j.predictions;
   const max = Math.max(...preds.map(p => p.qe), 1);
@@ -83,6 +88,7 @@ function show(j) {
   if (!w.hidden) w.textContent = `Versions disagree by ${f1(hi - lo)} mg/g for the top material (${mats.find(m => m.mat === bm).name}: ${f1(lo)} to ${f1(hi)}). Expect the true value somewhere in that range.`;
 }
 $('f').addEventListener('submit', e => { e.preventDefault(); run(); });
+$('lab').addEventListener('change', e => { if (!e.target.value) return; [$('conc').value, $('time').value, $('pH').value, $('dose').value] = e.target.value.split(','); run(); });
 $('optimum').addEventListener('click', () => { $('conc').value = 65; $('time').value = 190; $('pH').value = 8; $('dose').value = 10; run(); });
 sel.addEventListener('change', () => { desc(); run(); });
 mat.addEventListener('change', run);

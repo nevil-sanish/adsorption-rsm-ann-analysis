@@ -1,5 +1,5 @@
 """Public dashboard: live qe prediction + browser for every model version's files. No authentication."""
-import json, os, re
+import json, os, re, time
 from html import escape
 import markdown, pandas as pd
 from flask import Flask, abort, jsonify, render_template, request, send_from_directory, url_for
@@ -15,7 +15,7 @@ app = Flask(__name__)
 # Accuracy of each version's prediction model, copied from results/v3/RSM_ANN_v3_results.xlsx
 # and results/v2/RSM_ANN_results.xlsx ("Model comparison"). R2 = 1.0 is perfect; RMSE in mg/g.
 ACCURACY = [
-    {'id': 'v3', 'model': 'ANN, Adam + early stopping', 'cv_r2': .903, 'cv_rmse': 6.28, 'ho_r2': .937, 'ho_rmse': 3.81, 'lo_r2': .903, 'lo_rmse': 6.29},
+    {'id': 'v3', 'model': 'ANN (Adam, early-stopped training)', 'cv_r2': .903, 'cv_rmse': 6.28, 'ho_r2': .937, 'ho_rmse': 3.81, 'lo_r2': .903, 'lo_rmse': 6.29},
     {'id': 'v2', 'model': 'ANN + Gaussian Process ensemble', 'cv_r2': .874, 'cv_rmse': 7.18, 'ho_r2': .907, 'ho_rmse': 4.62, 'lo_r2': .887, 'lo_rmse': 6.78},
     {'id': 'v1-ann', 'model': 'ANN', 'cv_r2': .859, 'cv_rmse': 7.57, 'ho_r2': .918, 'ho_rmse': 4.34, 'lo_r2': .876, 'lo_rmse': 7.11},
     {'id': 'v1-rsm', 'model': 'RSM (quadratic, reduced)', 'cv_r2': .130, 'cv_rmse': 18.22, 'ho_r2': .727, 'ho_rmse': 7.91, 'lo_r2': .540, 'lo_rmse': 13.71},
@@ -27,6 +27,13 @@ VERSION_FOLDERS = {
 }
 KIND = {'.md': 'Report', '.docx': 'Word report', '.xlsx': 'Excel results', '.ipynb': 'Notebook', '.png': 'Plot', '.pdf': 'PDF'}
 MAT_LABEL = {'Biochar': 'Biochar (control)', 'BC:MgCO3 1:1': 'BC:MgCO₃ 1:1', 'BC:MgCO3 2:1': 'BC:MgCO₃ 2:1'}
+
+LAB = pd.read_csv(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data.csv')).groupby(['mat', 'conc', 'time', 'pH', 'dose']).y.agg(['mean', 'std']).reset_index()
+CONDITIONS = LAB[['conc', 'time', 'pH', 'dose']].drop_duplicates().sort_values(['conc', 'time', 'pH', 'dose']).values.tolist()
+
+def measured(v):
+    hit = LAB[(LAB.conc == v['conc']) & (LAB.time == v['time']) & (LAB.pH == v['pH']) & (LAB.dose == v['dose'])]
+    return {r.mat: {'mean': round(r['mean'], 2), 'sd': round(r['std'], 2)} for _, r in hit.iterrows()}
 
 def label(m): return MAT_LABEL.get(m, m)
 app.jinja_env.filters['label'] = label
@@ -58,7 +65,7 @@ def inject(): return {'label': label, 'A': analysis.load()}
 # ---------------- predict ----------------
 @app.get('/')
 def home():
-    return render_template('predict.html', versions=P.VERSIONS, mats=P.MATS, ranges=P.RANGES, accuracy={a['id']: a for a in ACCURACY})
+    return render_template('predict.html', versions=P.VERSIONS, mats=P.MATS, ranges=P.RANGES, accuracy={a['id']: a for a in ACCURACY}, conditions=CONDITIONS)
 
 @app.post('/api/predict')
 def api_predict():
@@ -71,10 +78,12 @@ def api_predict():
     if errs: return jsonify(error='; '.join(errs.values()), fields=list(errs)), 400
     version = j.get('version', 'v3')
     if version not in P.VERSIONS: return jsonify(error='Unknown model version.'), 400
+    t0 = time.perf_counter()
     pred = P.predict(version, P.MATS, **vals)
     compare = {v: P.predict(v, P.MATS, **vals) for v in P.VERSIONS}
+    ms = round((time.perf_counter() - t0) * 1000)
     best = max(pred, key=pred.get)
-    return jsonify(version=version, label=P.VERSIONS[version][0], inputs=vals, best=best,
+    return jsonify(ms=ms, measured=measured(vals), version=version, label=P.VERSIONS[version][0], inputs=vals, best=best,
                    predictions=[{'mat': m, 'name': label(m), 'qe': round(q, 2)} for m, q in pred.items()],
                    compare=[{'id': v, 'label': P.VERSIONS[v][0], 'values': {m: round(q, 2) for m, q in c.items()}} for v, c in compare.items()])
 
