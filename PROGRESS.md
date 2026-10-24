@@ -9,7 +9,7 @@ Updated after each step. Newest status first.
 | Web app (predict page, results browser) | Done, tested locally and live |
 | Live deployment | **https://adsorption-predictor.onrender.com** (Render, free plan, Singapore) |
 | Deploys from branch | `main`. **Action needed:** in the Render dashboard open the service → Settings → Branch and set it to `main` (the old feature branch was deleted, so until then Render keeps serving the last build but cannot redeploy) |
-| Repository public | **Not done yet.** GitHub blocked the change from the automated session. Do it by hand: repo → Settings → General → Danger Zone → Change visibility → Public |
+| Repository visibility | **Private, by the owner's decision.** The dashboard is public; the repository is not. Render reads it through its GitHub connection |
 | Work on `main` | Done. All commits are on `main` under the repo owner's name; the feature branch is deleted |
 
 ## What was built
@@ -32,7 +32,7 @@ Updated after each step. Newest status first.
 - v3 predicts 81.4 at the optimum here, while `V3_REPORT.md` says 68.2. The v3 ANN uses random early-stopping splits and a different scikit-learn version, so retraining gives a different network. Both sit inside the report's "expect 70–95 mg/g". The accuracy table on the site comes from the Colab runs, not from this retrained copy.
 - v3 under-predicts the highest-qe (low dose) results; the site says so on the predict page.
 - Render free plan sleeps after ~15 min idle; the first visit afterwards takes about 30–60 s.
-- `docs/` holds two published journal PDFs and personal notes (`voice.docx`, `doubts.docx`). They become public with the repo (the website does not serve `docs/`).
+- The repository is private, so `docs/` (journal PDFs, personal notes) is not exposed. The website never serves `docs/` either.
 
 ## Commit history of this work
 
