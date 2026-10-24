@@ -1,2 +1,4 @@
 .remember/
 PROJECT_OVERVIEW.docx
+__pycache__/
+*.pyc

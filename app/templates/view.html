@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}{{ name }}{% endblock %}
+{% block body %}
+<div class="crumbs"><a href="{{ url_for('results') }}">Results</a>{% if folder %} / <a href="{{ url_for('version_page', v=folder) }}">{{ folder }}</a>{% endif %} / {{ name }}</div>
+<div class="row" style="justify-content:space-between"><h1 style="margin:0;word-break:break-all">{{ name }}</h1>
+  <a class="btn solid" href="{{ url_for('raw', rel=rel, download=1) }}">Download ({{ size }})</a></div>
+{% if kind == 'md' %}<div class="doc">{{ body }}</div>
+{% elif kind == 'img' %}<div class="card gallery"><img src="{{ url_for('raw', rel=rel) }}" alt="{{ name }}"></div>
+{% elif kind == 'xlsx' %}
+  <div class="sheetnav">{% for s in sheets %}<a href="#s{{ loop.index }}">{{ s.name }}</a>{% endfor %}</div>
+  {% for s in sheets %}<div class="card" id="s{{ loop.index }}"><h2 style="margin-top:0">{{ s.name }} <small>({{ s.rows }} rows)</small></h2><div class="tablewrap">{{ s.html }}</div></div>{% endfor %}
+{% elif kind == 'ipynb' %}
+  <p class="lead">Read-only view. Run it in <a href="https://colab.research.google.com" target="_blank" rel="noopener">Google Colab</a> (upload the downloaded file, then Runtime → Run all).</p>
+  {% for c in cells %}<div class="cell">{% if c.type == 'md' %}<div class="doc">{{ c.html }}</div>{% else %}<pre><code>{{ c.html }}</code></pre>{% endif %}</div>{% endfor %}
+{% else %}<div class="card">This file type cannot be previewed in the browser. Use the download button.</div>
+{% endif %}
+{% endblock %}

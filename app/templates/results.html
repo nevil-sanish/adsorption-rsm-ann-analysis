@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Results{% endblock %}
+{% block body %}
+<h1>Results: every version, every file</h1>
+<p class="lead">RSM and ANN analysis of phosphate adsorption capacity (qe, mg/g) for 5 biochar materials: 32 runs × 3 replicates each, 480 lab measurements, none altered or synthesised.</p>
+
+<div class="card">
+  <h2 style="margin-top:0">Headline findings</h2>
+  <ul>
+    <li><b>Best material:</b> BC:MgCO₃ 1:1 (ANOVA + Tukey, p &lt; 0.001). Plain biochar holds almost nothing.</li>
+    <li><b>Best conditions (pH limited to 4–8):</b> 65 ppm, 190 min, pH 8, 10 mg dose.</li>
+    <li><b>Expected qe there:</b> roughly 70–95 mg/g. Highest measured: 91.5 mg/g.</li>
+    <li><b>Final model (v3)</b> predicts unseen conditions with R² 0.90–0.94 and an average error of about 4 mg/g.</li>
+  </ul>
+</div>
+
+<h2>Jump to a version</h2>
+<div class="grid g3">
+{% for v in versions %}
+  <div class="card" style="margin:0"><h3 style="margin-top:0"><a href="{{ url_for('version_page', v=v.id) }}">{{ v.title }}</a></h3>
+    <p class="lead" style="margin:0 0 10px">{{ v.blurb }}</p>
+    <a class="btn solid" href="{{ url_for('version_page', v=v.id) }}">Open {{ v.files|length }} files</a></div>
+{% endfor %}
+</div>
+
+<h2>Accuracy of each prediction model</h2>
+<div class="card"><div class="tablewrap"><table>
+  <tr><th>Version</th><th>Model</th><th class="n">5-fold CV R²</th><th class="n">5-fold error</th><th class="n">Hold-out R²</th><th class="n">Hold-out error</th><th class="n">Leave-one-out R²</th><th class="n">Leave-one-out error</th></tr>
+  {% for a in accuracy %}<tr {% if a.id == 'v3' %}class="hl"{% endif %}><td>{{ a.id.replace('-',' ').upper() }}</td><td>{{ a.model }}</td>
+    <td class="n">{{ a.cv_r2 }}</td><td class="n">{{ a.cv_rmse }}</td><td class="n">{{ a.ho_r2 }}</td><td class="n">{{ a.ho_rmse }}</td><td class="n">{{ a.lo_r2 }}</td><td class="n">{{ a.lo_rmse }}</td></tr>{% endfor %}
+</table></div>
+<small>R² closer to 1 is better; errors (RMSE) in mg/g, lower is better. <b>5-fold CV</b> repeats a 5-way split of the experimental conditions 3 times; <b>hold-out</b> uses 6 untouched runs; <b>leave-one-out</b> hides each condition in turn. Source: the Excel files in each version folder.</small></div>
+
+<h2>Overall documents</h2>
+<div class="card"><ul class="files">
+{% for f in overview %}<li><span class="nm">{{ f.name }}</span><span class="tag">{{ f.kind }}</span><small>{{ f.size }}</small>
+  {% if f.viewable %}<a class="btn" href="{{ url_for('view', rel=f.rel) }}">View</a>{% endif %}<a class="btn" href="{{ url_for('raw', rel=f.rel, download=1) }}">Download</a></li>{% endfor %}
+</ul></div>
+{% endblock %}

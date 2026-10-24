@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block body %}
+<div class="crumbs"><a href="{{ url_for('results') }}">Results</a> / {{ title }}</div>
+<div class="tabs">{% for k,(t,b) in nav %}<a href="{{ url_for('version_page', v=k) }}" class="{{ 'on' if k == v }}">{{ t }}</a>{% endfor %}</div>
+<h1>{{ title }}</h1><p class="lead">{{ blurb }}</p>
+
+{% if accuracy %}<div class="card"><h2 style="margin-top:0">Accuracy of this version's prediction model</h2><div class="tablewrap"><table>
+  <tr><th>Model</th><th class="n">5-fold CV R²</th><th class="n">Hold-out R²</th><th class="n">Hold-out error</th><th class="n">Leave-one-out R²</th><th class="n">Leave-one-out error</th></tr>
+  {% for a in accuracy %}<tr><td>{{ a.model }}</td><td class="n">{{ a.cv_r2 }}</td><td class="n">{{ a.ho_r2 }}</td><td class="n">{{ a.ho_rmse }} mg/g</td><td class="n">{{ a.lo_r2 }}</td><td class="n">{{ a.lo_rmse }} mg/g</td></tr>{% endfor %}
+</table></div>
+<a class="btn solid" href="{{ url_for('home') }}">Try this model live</a></div>{% endif %}
+
+<h2>All files</h2>
+<div class="card"><ul class="files">
+{% for f in files %}<li><span class="nm">{{ f.name }}</span><span class="tag">{{ f.kind }}</span><small>{{ f.size }}</small>
+  {% if f.viewable %}<a class="btn solid" href="{{ url_for('view', rel=f.rel) }}">View</a>{% endif %}<a class="btn" href="{{ url_for('raw', rel=f.rel, download=1) }}">Download</a></li>{% endfor %}
+</ul></div>
+
+{% if plots %}<h2>Plots</h2>
+<div class="grid g2 gallery">{% for p in plots %}<figure style="margin:0"><a href="{{ url_for('view', rel=p.rel) }}"><img loading="lazy" src="{{ url_for('raw', rel=p.rel) }}" alt="{{ p.name }}"></a><figcaption>{{ p.name }}</figcaption></figure>{% endfor %}</div>{% endif %}
+{% endblock %}

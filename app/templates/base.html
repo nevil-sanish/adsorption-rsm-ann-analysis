@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Adsorption Predictor{% endblock %} · Phosphate adsorption on biochar</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head><body>
+<header><div class="bar">
+  <a class="brand" href="{{ url_for('home') }}">Adsorption RSM vs ANN</a>
+  <nav>
+    <a href="{{ url_for('home') }}" class="{{ 'on' if request.endpoint == 'home' }}">Predict</a>
+    <a href="{{ url_for('results') }}" class="{{ 'on' if request.endpoint in ('results','version_page','view') }}">Results</a>
+  </nav>
+</div></header>
+<main>{% block body %}{% endblock %}</main>
+</body></html>
